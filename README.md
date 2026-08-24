@@ -196,18 +196,14 @@ models' raw generations, and scores.
 .
 ├── README.md                  # this file
 ├── app.py                     # Gradio demo app (HF Spaces — GPU/bitsandbytes)
-├── local_demo.py              # standalone local demo (CPU-only, no GPU needed)
 ├── requirements.txt           # demo dependencies
-├── eval_results.csv           # 20-prompt evaluation set + scores
 ├── notebooks/
 │   ├── Finetuning_datasets.ipynb       # Day 28 — dataset construction
 │   ├── day30dataset.ipynb              # Day 30 — domain corpus build
 │   ├── Domain_Adapter.ipynb            # Day 30 — QLoRA domain adaptation training
 │   ├── Day31 merged.ipynb              # Day 31 — merge, quantize, benchmark
 │   └── Day32_Gardio.ipynb              # Day 32 — Gradio demo (Colab test run)
-└── reports/
-    ├── Day30_Domain_Adaptation_Report.docx
-    └── Day31_Report.docx
+
 ```
 
 ## 10.1 Running the Demo
@@ -228,7 +224,7 @@ to get a temporary public link others can open without installing anything.
 
 **Option C — Google Colab:** open
 `notebooks/Day32_Gardio.ipynb`, run the cells, and use the
-`https://xxxxx.gradio.live` public link generated in the output.
+`https://8e82a00cbc1c189325.gradio.live` public link generated in the output.
 
 ## 11. Acknowledgements
 
