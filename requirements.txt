@@ -1,0 +1,7 @@
+transformers==4.46.3
+accelerate==1.0.1
+bitsandbytes
+huggingface_hub==0.24.6
+gradio==4.44.1
+starlette==0.38.6
+fastapi==0.115.0
