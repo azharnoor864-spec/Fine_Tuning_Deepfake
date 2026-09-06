@@ -8,11 +8,6 @@ deploying it as an interactive demo.
 **Model (merged FP16 + GGUF Q4_K_M):** [nooruiit-864/qwen2.5-1.5b-base-ai-safety-domain-lora](https://huggingface.co/nooruiit-864/qwen2.5-1.5b-base-ai-safety-domain-lora)
 **Source code:** [github.com/azharnoor864-spec/Fine_Tuning_Deepfake](https://github.com/azharnoor864-spec/Fine_Tuning_Deepfake)
 
-Built as part of the Planet Beyond AI Engineer Internship (Days 27–32),
-supervised by Ms. Iram Rubab.
-
----
-
 ## 1. Problem Statement
 
 General-purpose LLMs often produce vague, off-topic, or hallucinated responses
@@ -33,7 +28,7 @@ forgetting), and a safety caveat observed during evaluation.
 | | |
 |---|---|
 | **Base model** | `Qwen/Qwen2.5-1.5B` (non-instruct / base variant) |
-| **Why base, not instruct** | Domain adaptation uses plain continuation-style text with no prompt/response structure — a better match for the base checkpoint's causal-LM pretraining objective. Evaluation also showed the base variant was more coherent, more factually grounded, and safer than the Instruct variant after adaptation (see §7). |
+| **Why base, not instruct** | Domain adaptation uses plain continuation-style text with no prompt/response structure — a better match for the base checkpoint's causal-LM pretraining objective. Evaluation also showed the base variant was more coherent, more factually grounded, and safer than the Instruct variant after adaptation. |
 | **Parameters** | 1,543,714,304 (post-merge) |
 
 ## 3. Dataset Process
@@ -225,8 +220,3 @@ to get a temporary public link others can open without installing anything.
 **Option C — Google Colab:** open
 `notebooks/Day32_Gardio.ipynb`, run the cells, and use the
 `https://8e82a00cbc1c189325.gradio.live` public link generated in the output.
-
-## 11. Acknowledgements
-
-Built as Day 27–32 of the Planet Beyond AI Engineer Internship curriculum,
-under the supervision of Ms. Iram Rubab.

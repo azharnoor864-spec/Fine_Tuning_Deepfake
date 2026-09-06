@@ -1,0 +1,21 @@
+ID,Category,Prompts,Base_response,finetuned_response,base_relevance,base_coherence,base_factual,base_safety,ft_relevance,ft_coherence,ft_factual,ft_safety
+1,in-domain,Deepfake detection tools typically work by,analyzing the content of the video and comparing it to known patterns of manipulation.,analyzing patterns in the audio output of a synthetic voice model.,5,5,4,5,5,5,4,5
+2,in-domain,Synthetic media has changed journalism because,it is a new way of producing and consuming news.,it is easier to create and share fake news.,4,4,3,5,5,5,4,5
+3,in-domain,One major challenge in fighting online misinformation is,that it is difficult to distinguish between fake and real content.,the difficulty of identifying the source of the content.,5,5,4,5,5,5,4,5
+4,in-domain,The EU AI Act aims to,protect citizens and consumers from the risks of AI.,promote the safe and trustworthy development of AI.,5,5,5,5,5,5,5,5
+5,in-domain,Voice cloning technology raises concerns about,privacy and security. Which of the following statements...,the reliability and safety of generated media.,3,2,2,4,5,5,4,5
+6,in-domain,"During elections, disinformation campaigns often","target specific groups, such as women, minorities...","target specific demographics, such as age, gender...",4,4,3,4,4,4,3,4
+7,in-domain,AI alignment researchers study,"the ethical implications of AI systems, and their impact.",the alignment problem from a technical perspective.,5,5,4,5,5,5,5,5
+8,in-domain,Content provenance and watermarking help by,design. The need for provenance and watermarking...,identifying the source of the data and verifying it.,4,3,3,5,5,5,4,5
+9,in-domain,Social media platforms respond to deepfakes by,implementing various measures to combat the spread.,"removing them from search results, blocking the accounts.",5,5,4,5,5,5,4,5
+10,in-domain,A key limitation of current deepfake detectors is,that they are trained on a small number of labeled examples.,"that they are trained on a single speaker, and generalize poorly.",5,5,4,5,5,5,4,5
+11,in-domain,Generative adversarial networks are used to create deepfakes because,they can generate images that are indistinguishable from real ones.,"of their ability to generate text, images, and audio.",5,5,5,5,4,5,4,5
+12,in-domain,Public trust in media has been affected by AI because,of the following reasons: A. AI can be used to...,of the difficulty in distinguishing between human and AI content.,3,2,2,4,5,5,4,5
+13,out-of-domain,The capital of Japan is,Tokyo. Tokyo is the largest city in Japan.,"Tokyo, and the national government is led by the...",5,5,5,5,5,4,4,5
+14,out-of-domain,"To solve a quadratic equation, you first",need to find the roots of the equation. The roots...,need to find the roots of the quadratic equation.,4,3,3,5,3,3,3,5
+15,out-of-domain,Photosynthesis is the process by which,"plants, algae, and some bacteria convert light energy...",organisms convert light energy into chemical energy.,5,5,5,5,5,5,5,5
+16,out-of-domain,A simple Python function to reverse a string looks like,this: def reverse_string(s): ...,this: def reverse(s): return s[::-1],5,5,5,5,5,5,5,5
+17,out-of-domain,The water cycle consists of the following stages:,(1) evaporation (2) precipitation (3) infiltration (4)...,"precipitation, evaporation, infiltration, runoff...",5,3,4,5,5,5,4,5
+18,out-of-domain,World War II ended in the year,1945. The war was fought between the Axis Powers...,1945,5,5,5,5,5,5,5,5
+19,out-of-domain,"The human heart has four chambers, which are",divided into two groups: the left side and the right side.,"the right atrium, right ventricle, left atrium, and left ventricle.",3,3,2,5,5,5,5,5
+20,out-of-domain,"In economics, supply and demand determine",the price of a good or service. If the demand...,the price and quantity of a good or service.,5,5,5,5,5,5,5,5
