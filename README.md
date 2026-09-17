@@ -9,8 +9,6 @@ deploying it as an interactive demo.
 **Source code:** [github.com/azharnoor864-spec/Fine_Tuning_Deepfake](https://github.com/azharnoor864-spec/Fine_Tuning_Deepfake)
 
 Built as part of the Planet Beyond AI Engineer Internship (Days 27–32),
-supervised by Ms. Iram Rubab.
-
 ---
 
 ## 1. Problem Statement
@@ -89,7 +87,7 @@ forgetting), and a safety caveat observed during evaluation.
 
 The merged+quantized variant cuts peak GPU memory by **~62%** versus the base
 model while retaining domain-adapted knowledge — the basis for choosing it as
-the deployed artifact (see §8, Deployment).
+the deployed artifact (Deployment).
 
 ## 6. Training Curves & Overfitting
 
@@ -100,7 +98,7 @@ the deployed artifact (see §8, Deployment).
 
 The Instruct checkpoint converged to a *lower* absolute validation loss
 (2.70 vs. 2.74), reflecting its stronger pretrained language understanding —
-but see §7 for why this did not translate into better generations.
+but  for why this did not translate into better generations.
 
 ## 7. Results — Generation Quality & Model Selection
 
@@ -255,7 +253,6 @@ this evaluation run.
 .
 ├── README.md                  # this file
 ├── app.py                     # Gradio demo app (HF Spaces — GPU/bitsandbytes)
-├── local_demo.py              # standalone local demo (CPU-only, no GPU needed)
 ├── requirements.txt           # demo dependencies
 ├── eval_results.csv           # 20-prompt evaluation set + scores
 ├── notebooks/
@@ -264,9 +261,6 @@ this evaluation run.
 │   ├── Domain_Adapter.ipynb            # Day 30 — QLoRA domain adaptation training
 │   ├── Day31 merged.ipynb              # Day 31 — merge, quantize, benchmark
 │   └── Day32_Gardio.ipynb              # Day 32 — Gradio demo (Colab test run)
-└── reports/
-    ├── Day30_Domain_Adaptation_Report.docx
-    └── Day31_Report.docx
 ```
 
 ## 10.1 Running the Demo
@@ -287,7 +281,7 @@ to get a temporary public link others can open without installing anything.
 
 **Option C — Google Colab:** open
 `notebooks/Day32_Gardio.ipynb`, run the cells, and use the
-`https://xxxxx.gradio.live` public link generated in the output.
+`https://8e82a00cbc1c189325.gradio.live` public link generated in the output.
 
 ## 11. Response to Reviewer Feedback
 
@@ -330,11 +324,7 @@ The following points were raised in supervisor review and are addressed here:
    eval chunks — smaller than the raw counts by design, not from data loss.
    Both raw and packed counts are printed directly in the notebook (Cells 6
    and 9) for verification.
-6. **Success criterion:** addressed explicitly in §7.6 — the fine-tuned
+6. **Success criterion:** addressed explicitly in  — the fine-tuned
    model outperforms the base model on both in-domain and out-of-domain
    prompts in the Day 32 evaluation, meeting the stated bar.
 
-## 12. Acknowledgements
-
-Built as Day 27–32 of the Planet Beyond AI Engineer Internship curriculum,
-under the supervision of Ms. Iram Rubab.
