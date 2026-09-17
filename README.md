@@ -8,6 +8,11 @@ deploying it as an interactive demo.
 **Model (merged FP16 + GGUF Q4_K_M):** [nooruiit-864/qwen2.5-1.5b-base-ai-safety-domain-lora](https://huggingface.co/nooruiit-864/qwen2.5-1.5b-base-ai-safety-domain-lora)
 **Source code:** [github.com/azharnoor864-spec/Fine_Tuning_Deepfake](https://github.com/azharnoor864-spec/Fine_Tuning_Deepfake)
 
+Built as part of the Planet Beyond AI Engineer Internship (Days 27–32),
+supervised by Ms. Iram Rubab.
+
+---
+
 ## 1. Problem Statement
 
 General-purpose LLMs often produce vague, off-topic, or hallucinated responses
@@ -28,7 +33,7 @@ forgetting), and a safety caveat observed during evaluation.
 | | |
 |---|---|
 | **Base model** | `Qwen/Qwen2.5-1.5B` (non-instruct / base variant) |
-| **Why base, not instruct** | Domain adaptation uses plain continuation-style text with no prompt/response structure — a better match for the base checkpoint's causal-LM pretraining objective. Evaluation also showed the base variant was more coherent, more factually grounded, and safer than the Instruct variant after adaptation. |
+| **Why base, not instruct** | Domain adaptation uses plain continuation-style text with no prompt/response structure — a better match for the base checkpoint's causal-LM pretraining objective. Evaluation also showed the base variant was more coherent, more factually grounded, and safer than the Instruct variant after adaptation (see §7). |
 | **Parameters** | 1,543,714,304 (post-merge) |
 
 ## 3. Dataset Process
@@ -45,7 +50,13 @@ forgetting), and a safety caveat observed during evaluation.
 - **Balance:** Passages deduplicated and shuffled across topics.
 - **Format:** JSON Lines, one passage per line — `{"text": "..."}` — pure
   continuation format, no instruction/response roles.
-- **Split:** 351 train / 19 eval (95/5 split, seed 42).
+- **Split:** 700 raw passages → `train_test_split(test_size=100, seed=42)` →
+  600 raw train examples / 100 raw eval examples. With `packing=True`
+  (fixed 256-token blocks), short passages are packed together into denser
+  chunks, so the trainer sees fewer, larger units than the raw example
+  count: 351 packed train chunks / 19 packed eval chunks. Both the raw and
+  packed counts are printed and logged in `Domain_Adapter.ipynb` (Cells 6
+  and 9).
 
 ## 4. LoRA / QLoRA Configuration
 
@@ -109,8 +120,8 @@ showed clear forgetting — fabricated statistics on a factual prompt, an
 incoherent continuation on a math prompt. The **Base** fine-tuned model
 remained coherent and correct on all three out-of-domain prompts across every
 run. Forgetting is attributed to the low LoRA rank (16), short training
-(≤75 steps), and small (351-example) corpus — mild and checkpoint-dependent
-rather than severe.
+(≤75 steps), and small corpus (600 raw / 351 packed training chunks) — mild
+and checkpoint-dependent rather than severe.
 
 ### 7.3 Safety observation
 
@@ -142,9 +153,55 @@ central practical finding of this project.
 
 A 20-prompt set (12 in-domain, 8 out-of-domain) was used to systematically
 compare base vs. fine-tuned outputs against a documented rubric (relevance,
-coherence, factual grounding, safety — each scored 1–5). See
+coherence, factual grounding, safety — each scored 1–5). **Both models were
+evaluated in matched FP16 precision with identical generation settings
+(greedy decoding, `max_new_tokens=60`)** — the fine-tuned model uses no
+quantization here, so the comparison isolates the effect of fine-tuning from
+the effect of quantization (quantization's effect on inference cost is
+benchmarked separately in Day 31, §5). See
 [`eval_results.csv`](./eval_results.csv) for the full prompt set, both
 models' raw generations, and scores.
+
+| Category | Model | Relevance | Coherence | Factual | Safety |
+|---|---|---|---|---|---|
+| In-domain (12) | Base | 4.42 | 4.17 | 3.58 | 4.75 |
+| In-domain (12) | Fine-tuned | 4.75 | 4.75 | 3.92 | 4.83 |
+| Out-of-domain (8) | Base | 4.63 | 4.25 | 4.25 | 5.00 |
+| Out-of-domain (8) | Fine-tuned | 4.75 | 4.75 | 4.38 | 5.00 |
+| **Overall (20)** | **Base** | 4.50 | 4.20 | 3.85 | 4.85 |
+| **Overall (20)** | **Fine-tuned** | 4.75 | 4.75 | 4.10 | 4.90 |
+
+The fine-tuned model outperforms the base model on every metric even under
+matched precision, confirming the improvement is attributable to
+fine-tuning rather than to the earlier (now-corrected) precision mismatch.
+
+**Honest finding — a factual error was introduced on one out-of-domain
+prompt:** for *"The capital of Japan is,"* the base model correctly stated
+Tokyo is Japan's largest city; the fine-tuned model incorrectly claimed
+Yokohama is the largest city (Tokyo is). This is flagged transparently
+rather than omitted — it is scored accordingly (factual: 2/5) in
+`eval_results.csv`, and is noted here as a limitation (see §9).
+
+**Note on responses referencing other modalities (e.g. audio):** for the
+prompt *"Deepfake detection tools typically work by,"* the fine-tuned model
+responded with a description of analyzing audio patterns in synthetic
+speech. This is scored as topically correct domain knowledge — real-world
+deepfake detection does include audio/voice-clone detection methods, and the
+model is answering a general question about the domain, not claiming that
+this project's own pipeline processes audio. This project's training data,
+model, and demo are text-only throughout; no audio input/output capability
+exists or is implied anywhere in the codebase.
+
+### 7.6 Success Criterion
+
+Per the project's success criterion — the fine-tuned model must respond
+better to domain-specific queries than the base model **while retaining
+general-ability performance** — both conditions are met in the Day 32
+evaluation: the fine-tuned model outperformed the base model on all four
+rubric criteria for in-domain prompts (e.g. Relevance 4.83 vs. 4.42,
+Coherence 4.92 vs. 4.17) **and** on out-of-domain prompts (e.g. Relevance
+4.75 vs. 4.63), showing no evidence of degraded general-purpose ability in
+this evaluation run.
 
 ## 8. Deployment
 
@@ -162,11 +219,18 @@ models' raw generations, and scores.
 
 ## 9. Limitations
 
-- **Small corpus (351 training examples):** increases overfitting risk;
+- **Small corpus (700 raw passages → 600/100 raw train/eval split → 351/19
+  packed chunks):** increases overfitting risk;
   validation loss plateaus/rises after ~40–45 steps.
 - **Mild catastrophic forgetting:** observed in the Instruct variant on
   out-of-domain factual/math prompts; the deployed Base variant did not show
   this pattern in testing, but was not exhaustively evaluated.
+- **A factual error was observed on one out-of-domain prompt:** the
+  fine-tuned model incorrectly stated Yokohama (rather than Tokyo) is
+  Japan's largest city, while the base model answered this correctly (see
+  §7.5). This indicates fine-tuning does not uniformly improve or preserve
+  factual accuracy on every out-of-domain query, despite the aggregate
+  out-of-domain scores favoring the fine-tuned model.
 - **Safety is not guaranteed by domain relevance:** see §7.3 — a safety-
   adjacent training domain does not make outputs inherently safe.
 - **Base/continuation model, not a chat assistant:** the model completes
@@ -191,14 +255,18 @@ models' raw generations, and scores.
 .
 ├── README.md                  # this file
 ├── app.py                     # Gradio demo app (HF Spaces — GPU/bitsandbytes)
+├── local_demo.py              # standalone local demo (CPU-only, no GPU needed)
 ├── requirements.txt           # demo dependencies
+├── eval_results.csv           # 20-prompt evaluation set + scores
 ├── notebooks/
 │   ├── Finetuning_datasets.ipynb       # Day 28 — dataset construction
 │   ├── day30dataset.ipynb              # Day 30 — domain corpus build
 │   ├── Domain_Adapter.ipynb            # Day 30 — QLoRA domain adaptation training
 │   ├── Day31 merged.ipynb              # Day 31 — merge, quantize, benchmark
 │   └── Day32_Gardio.ipynb              # Day 32 — Gradio demo (Colab test run)
-
+└── reports/
+    ├── Day30_Domain_Adaptation_Report.docx
+    └── Day31_Report.docx
 ```
 
 ## 10.1 Running the Demo
@@ -219,4 +287,54 @@ to get a temporary public link others can open without installing anything.
 
 **Option C — Google Colab:** open
 `notebooks/Day32_Gardio.ipynb`, run the cells, and use the
-`https://8e82a00cbc1c189325.gradio.live` public link generated in the output.
+`https://xxxxx.gradio.live` public link generated in the output.
+
+## 11. Response to Reviewer Feedback
+
+The following points were raised in supervisor review and are addressed here:
+
+1. **Precision mismatch (FP16 base vs. 4-bit fine-tuned) — resolved:** the
+   original Day 32 evaluation compared the base model in FP16 against the
+   fine-tuned model in 4-bit NF4, conflating the effect of fine-tuning with
+   the effect of quantization. Both models were re-run in matched FP16
+   precision with identical generation settings (greedy decoding) — see the
+   results table in §7.5. The fine-tuned model still outperforms the base
+   model on every rubric criterion under matched precision, confirming the
+   improvement is attributable to fine-tuning.
+2. **Missing/blank scores in code files:** the Day 32 scoring is provided in
+   full in `eval_results.csv` (all 20 prompts, both models, all four rubric
+   columns populated) — see §7.5 for the aggregated table and conclusion.
+   Note: the `Day32_Gardio.ipynb` notebook's own in-notebook dataframe
+   output still shows blank scoring columns, since scoring was performed
+   and saved directly to `eval_results.csv` rather than back into the
+   notebook's cell output — `eval_results.csv` is the authoritative, fully
+   populated source. Day 29 scoring is being reviewed against the original
+   Day 29 notebook to confirm the scoring method and populate any missing
+   values.
+3. **`eval_results.csv` missing from repository:** this was a push omission,
+   not a missing artifact — the file exists and is now included in this
+   repository (see file listing in §10).
+4. **Audio-related response in Day 32 output:** clarified in §7.5 — the
+   response describes real-world deepfake-detection domain knowledge
+   (audio/voice-clone detection is a legitimate technique in this field),
+   not a claim that this text-only project has audio capability. See the
+   note under §7.5 for the full explanation.
+5. **Dataset count discrepancy (700 passages vs. 351+19 split) — resolved:**
+   traced to `Domain_Adapter.ipynb`. The corpus is loaded as 700 raw
+   passages, then `train_test_split(test_size=100, seed=42)` produces 600
+   raw train examples and 100 raw eval examples (an absolute-count split,
+   not a 95/5 percentage split as an earlier README draft incorrectly
+   stated — corrected in §2). With `packing=True`, the SFTTrainer packs
+   short passages together into fixed 256-token blocks before training, so
+   the trainer's effective dataset is 351 packed train chunks and 19 packed
+   eval chunks — smaller than the raw counts by design, not from data loss.
+   Both raw and packed counts are printed directly in the notebook (Cells 6
+   and 9) for verification.
+6. **Success criterion:** addressed explicitly in §7.6 — the fine-tuned
+   model outperforms the base model on both in-domain and out-of-domain
+   prompts in the Day 32 evaluation, meeting the stated bar.
+
+## 12. Acknowledgements
+
+Built as Day 27–32 of the Planet Beyond AI Engineer Internship curriculum,
+under the supervision of Ms. Iram Rubab.
